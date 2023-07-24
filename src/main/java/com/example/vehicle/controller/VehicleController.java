@@ -1,10 +1,12 @@
 package com.example.vehicle.controller;
 
-import com.example.vehicle.constants.RespStatus;
+import com.example.vehicle.entity.VehicleEntity;
+import com.example.vehicle.exception.ResStatus;
+import com.example.vehicle.exception.VehicleNumberException;
 import com.example.vehicle.model.VRNValidation;
-import com.example.vehicle.model.VehicleInfoBody;
 import com.example.vehicle.pojo.VehiclePojo;
 import com.example.vehicle.service.VehicleService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,44 +15,50 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
 @RestController
+@Slf4j
 public class VehicleController {
     @Autowired
     VehicleService vehicleService;
 
 
     @PostMapping("/addVehicle")
-    ResponseEntity<VehicleInfoBody> addVehicle(@RequestBody @Valid VehiclePojo vehiclePojo) {
-        if (vehiclePojo.getVehicleNumber()!=null && !vehiclePojo.getVehicleNumber().isEmpty()) {
-            if (VRNValidation.isValid(vehiclePojo.getVehicleNumber())) {
-                vehicleService.addVehicle(vehiclePojo);
-                return new ResponseEntity<>(new VehicleInfoBody(RespStatus.SUCCESS), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new VehicleInfoBody(RespStatus.INVALID_VEHICLE_NUMBER + vehiclePojo.getVehicleNumber()), HttpStatus.BAD_REQUEST);
-            }
+    ResponseEntity<VehicleEntity> addVehicle(@RequestBody @Valid VehiclePojo vehiclePojo) {
+        try {
+            checkNumber(vehiclePojo);
+            return new ResponseEntity<>(vehicleService.addVehicle(vehiclePojo), HttpStatus.OK);
+        } catch (Exception e) {
+            log.info("exception");
+            throw e;
         }
-        return new ResponseEntity<>(new VehicleInfoBody(RespStatus.ENTER_VEHICLE_NUMBER), HttpStatus.BAD_REQUEST);
+    }
+
+    private void checkNumber(VehiclePojo vehiclePojo) {
+        if (vehiclePojo.getVehicleNumber() == null) {
+            throw new VehicleNumberException(ResStatus.VEHICLE_NUMBER);
+        }
+        if (!VRNValidation.isValid(vehiclePojo.getVehicleNumber())) {
+            throw new VehicleNumberException(ResStatus.INVALID_NUMBER);
+        }
     }
 
     @PutMapping("/updateVehicle")
-    ResponseEntity<VehicleInfoBody> updateVehicle(@RequestBody VehiclePojo vehiclePojo) {
-        if (vehiclePojo.getVehicleNumber()!=null && !vehiclePojo.getVehicleNumber().isEmpty()) {
-            if (VRNValidation.isValid(vehiclePojo.getVehicleNumber())) {
-                vehicleService.updateVehicle(vehiclePojo);
-                return new ResponseEntity<>(new VehicleInfoBody(RespStatus.UPDATED), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(new VehicleInfoBody(RespStatus.INVALID_VEHICLE_NUMBER + vehiclePojo.getVehicleNumber()), HttpStatus.BAD_REQUEST);
-            }
+    ResponseEntity<VehicleEntity> updateVehicle(@RequestBody VehiclePojo vehiclePojo) {
+        try {
+            checkNumber(vehiclePojo);
+            return new ResponseEntity<>(vehicleService.updateVehicle(vehiclePojo), HttpStatus.OK);
+        } catch (Exception e) {
+            log.info("exception");
+            throw e;
         }
-        return new ResponseEntity<>(new VehicleInfoBody(RespStatus.ENTER_VEHICLE_NUMBER), HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/getVehicle")
-    ResponseEntity<VehiclePojo> getVehicle(@RequestParam("vehicleNumber")@Valid String vehicleNumber) {
-        return new ResponseEntity<>(vehicleService.getVehicle(vehicleNumber),HttpStatus.OK);
+    ResponseEntity<VehiclePojo> getVehicle(@RequestParam("vehicleNumber") @Valid String vehicleNumber) {
+        return new ResponseEntity<>(vehicleService.getVehicle(vehicleNumber), HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteVehicle")
-    String deleteBooking(@RequestParam("vehicleNumber")@Valid String vehicleNumber) {
+    String deleteBooking(@RequestParam("vehicleNumber") @Valid String vehicleNumber) {
         return vehicleService.deleteVehicle(vehicleNumber);
     }
 

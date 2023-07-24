@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VehicleInfoRepo extends JpaRepository<VehicleEntity,Integer> {
-    @Query("select v from VehicleInfo v where v.vehicleNumber = :vehicleNumber")
+    @Query("select v from VehicleEntity v where v.vehicleNumber = :vehicleNumber")
     VehicleEntity getByVehicleNumber(String vehicleNumber);
 }
