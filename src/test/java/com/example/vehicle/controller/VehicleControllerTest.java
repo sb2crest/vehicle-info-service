@@ -17,9 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
@@ -46,6 +44,7 @@ class VehicleControllerTest {
         mvc.perform(post("/addVehicle").content(TestUtil.convertObjectToJsonBytes(getVehiclePojo()))
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
+
     @Test
     void addVehicleForInvalidNumber() throws Exception {
         VehiclePojo vehiclePojo = getVehiclePojo();
@@ -54,6 +53,7 @@ class VehicleControllerTest {
         mvc.perform(post("/addVehicle").content(TestUtil.convertObjectToJsonBytes(vehiclePojo))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
+
     @Test
     void addVehicleWithNoNumber() throws Exception { //when number is null
         VehiclePojo vehiclePojo =new VehiclePojo();
@@ -66,10 +66,23 @@ class VehicleControllerTest {
     }
 
     @Test
-    void getVehicle() throws Exception {
-        Mockito.when(vehicleService.getVehicle(Mockito.any())).thenReturn(getVehiclePojo());
-        mvc.perform(put("/updateVehicle").content(TestUtil.convertObjectToJsonBytes(getVehiclePojo()))
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+    void updateVehicleWithNoNumber() throws Exception { //when number is null
+        VehiclePojo vehiclePojo =new VehiclePojo();
+        vehiclePojo.setName("audi");
+        vehiclePojo.setModel("x7");
+        vehiclePojo.setSeatCapacity(4);
+        Mockito.when(vehicleService.updateVehicle(Mockito.any())).thenReturn(getVehicleEntity());
+        mvc.perform(put("/updateVehicle").content(TestUtil.convertObjectToJsonBytes(vehiclePojo))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateVehicleForInvalidNumber() throws Exception {
+        VehiclePojo vehiclePojo = getVehiclePojo();
+        vehiclePojo.setVehicleNumber("123445");
+        Mockito.when(vehicleService.updateVehicle(Mockito.any())).thenReturn(getVehicleEntity());
+        mvc.perform(put("/updateVehicle").content(TestUtil.convertObjectToJsonBytes(vehiclePojo))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -85,10 +98,25 @@ class VehicleControllerTest {
         mvc.perform(delete("/deleteVehicle").param("vehicleNumber","12")
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
+
     @Test
-    void deleteBookingWhenVehicleDoesNotExist() throws Exception {
+    void deleteBookingWhenVehicleDoesNotExistInDB() throws Exception {
         Mockito.when(vehicleService.deleteVehicle(Mockito.anyString())).thenReturn("no vehicle with this number 12");
         mvc.perform(delete("/deleteVehicle").param("vehicleNumber","12")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    void getVehicle() throws Exception {
+        Mockito.when(vehicleService.getVehicle(Mockito.anyString())).thenReturn(getVehiclePojo());
+        mvc.perform(get("/getVehicle").param("vehicleNumber","12")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+    }
+
+    @Test
+    void getVehicleWhenNoMatchingDataExists() throws Exception {
+        Mockito.when(vehicleService.getVehicle(Mockito.anyString())).thenReturn(null);
+        mvc.perform(get("/getVehicle").param("vehicleNumber","12")
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
 
