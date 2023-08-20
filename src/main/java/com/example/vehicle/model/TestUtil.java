@@ -10,6 +10,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class TestUtil {
 
+    private TestUtil() throws IllegalAccessException {
+        throw new IllegalAccessException("TestUtil class");
+    }
     private static final ObjectMapper mapper = createObjectMapper();
 
     private static ObjectMapper createObjectMapper() {

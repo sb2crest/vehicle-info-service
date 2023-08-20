@@ -125,7 +125,7 @@ class VehicleControllerTest {
         vehiclePojo.setName("audi");
         vehiclePojo.setModel("x7");
         vehiclePojo.setSeatCapacity(4);
-        vehiclePojo.setVehicleNumber("KA 12 ab 1234");
+        vehiclePojo.setVehicleNumber("KA12ab1234");
         return vehiclePojo;
     }
     VehicleEntity getVehicleEntity(){

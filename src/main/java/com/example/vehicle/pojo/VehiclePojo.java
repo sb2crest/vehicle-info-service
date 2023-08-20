@@ -1,8 +1,11 @@
 package com.example.vehicle.pojo;
 
-import lombok.Data;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class VehiclePojo {
 
     private String name;

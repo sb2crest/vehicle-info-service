@@ -1,25 +1,26 @@
 package com.example.vehicle.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
-@Data
+@Setter
+@Getter
 @Entity
 @Table(name = "otp")
 public class OTP {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "mobile")
     private String mobileNumber;
 
-    private String otp;
+    private String otPassword;
 
     @Column(name = "generated_time")
-    private LocalDateTime generatedTime;
+    private String generatedTime;
 
 }

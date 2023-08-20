@@ -30,9 +30,6 @@ public class VehicleEntity {
     @Column(name="vehicle_number")
     private String vehicleNumber;
 
-//    @ManyToOne
-//    @JoinColumn(name = "v_id",updatable = false,insertable = false)
-//    private Integer vehicleId;
 
     @Override
     public boolean equals(Object o) {

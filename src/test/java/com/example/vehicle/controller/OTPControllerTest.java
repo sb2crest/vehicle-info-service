@@ -19,6 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.IOException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -46,14 +47,62 @@ class OTPControllerTest {
         mvc.perform(post("/validateOTP").content(TestUtil.convertObjectToJsonBytes(getValidateOTP()))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
+
     @Test
     void validateSMSWithUnSuccess() throws Exception {
         Mockito.when(otpService.validateSMS(Mockito.any())).thenReturn("Validation Unsuccessful");
         mvc.perform(post("/validateOTP").content(TestUtil.convertObjectToJsonBytes(getValidateOTP()))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
     }
-    ValidateOTP getValidateOTP(){
-        ValidateOTP validateOTP=new ValidateOTP();
+
+    @Test
+     void testGetOTP_SUCCESS() throws Exception {
+        String mobileNumber = "1234567890";
+        String expectedResult = "OTP sent successfully.";
+
+        Mockito.when(otpService.generateOTP(mobileNumber)).thenReturn(expectedResult);
+
+        mvc.perform(get("/sendOTP")
+                        .param("mobileNumber", mobileNumber)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedResult));
+    }
+
+    @Test
+     void testGetOTP_FAILURE() throws Exception {
+        String mobileNumber = "1234567890";
+        String expectedResult = "Failed to send OTP.";
+
+        Mockito.when(otpService.generateOTP(mobileNumber)).thenReturn(expectedResult);
+
+        mvc.perform(get("/sendOTP")
+                        .param("mobileNumber", mobileNumber)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedResult));
+    }
+    @Test
+     void testGetOTP_InvalidNumber() throws Exception {
+        String mobileNumber = "123"; // Invalid number
+
+        mvc.perform(get("/sendOTP")
+                        .param("mobileNumber", mobileNumber)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+    @Test
+     void testGetOTP_EmptyMobileNumber() throws Exception {
+        String mobileNumber = ""; // Invalid number
+
+        mvc.perform(get("/sendOTP")
+                        .param("mobileNumber", mobileNumber)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    ValidateOTP getValidateOTP() {
+        ValidateOTP validateOTP = new ValidateOTP();
         validateOTP.setOtp("12345");
         validateOTP.setMobileNumber("1234567890");
         return validateOTP;

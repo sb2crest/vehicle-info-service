@@ -1,5 +1,7 @@
 package com.example.vehicle.service;
 
+import com.example.vehicle.exception.ResStatus;
+import com.example.vehicle.exception.VehicleNumberException;
 import com.example.vehicle.pojo.VehiclePojo;
 import com.example.vehicle.entity.VehicleEntity;
 import com.example.vehicle.repository.VehicleInfoRepo;
@@ -11,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 class VehicleServiceImplementationTest {
@@ -24,6 +28,17 @@ class VehicleServiceImplementationTest {
     @Test
     void addVehicle() {
         Assertions.assertEquals(4,bookingServiceImplementation.addVehicle(getVehiclePojo()).getSeatCapacity());
+    }
+
+    @Test
+    void addVehicle_Throws_Exception(){
+        VehiclePojo vehiclePojo = new VehiclePojo();
+        vehiclePojo.setVehicleNumber("ABC123");
+        Mockito.when(vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber())).thenReturn(new VehicleEntity());
+        assertThrows(VehicleNumberException.class, () -> {
+            bookingServiceImplementation.addVehicle(vehiclePojo);
+        });
+
     }
 
     @Test
