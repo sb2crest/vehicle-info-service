@@ -19,8 +19,6 @@ public class VehicleServiceImplementation implements VehicleService {
             vehicleEntity = vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber());
             if(vehicleEntity==null){
                 vehicleEntity=new VehicleEntity();
-                vehicleEntity.setName(vehiclePojo.getName());
-                vehicleEntity.setModel(vehiclePojo.getModel());
                 vehicleEntity.setSeatCapacity(vehiclePojo.getSeatCapacity());
                 vehicleEntity.setVehicleNumber(vehiclePojo.getVehicleNumber());
                 vehicleInfoRepo.save(vehicleEntity);
@@ -36,8 +34,6 @@ public class VehicleServiceImplementation implements VehicleService {
             VehiclePojo vehiclePojo = null;
             if (vehicleEntity != null) {
                 vehiclePojo = new VehiclePojo();
-                vehiclePojo.setName(vehicleEntity.getName());
-                vehiclePojo.setModel(vehicleEntity.getModel());
                 vehiclePojo.setSeatCapacity(vehicleEntity.getSeatCapacity());
                 vehiclePojo.setVehicleNumber(vehicleEntity.getVehicleNumber());
             }
@@ -48,8 +44,6 @@ public class VehicleServiceImplementation implements VehicleService {
         public VehicleEntity updateVehicle (VehiclePojo vehiclePojo){
             VehicleEntity vehicleEntity = vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber());
             if (vehicleEntity != null) {
-                vehicleEntity.setModel(vehiclePojo.getModel());
-                vehicleEntity.setName(vehiclePojo.getName());
                 vehicleEntity.setSeatCapacity(vehiclePojo.getSeatCapacity());
                 vehicleInfoRepo.save(vehicleEntity);
                 return vehicleEntity;

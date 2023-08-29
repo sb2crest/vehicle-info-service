@@ -1,11 +1,9 @@
 package com.example.vehicle.service;
 
-import com.example.vehicle.exception.ResStatus;
 import com.example.vehicle.exception.VehicleNumberException;
 import com.example.vehicle.pojo.VehiclePojo;
 import com.example.vehicle.entity.VehicleEntity;
 import com.example.vehicle.repository.VehicleInfoRepo;
-import com.example.vehicle.service.VehicleServiceImplementation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,9 +33,9 @@ class VehicleServiceImplementationTest {
         VehiclePojo vehiclePojo = new VehiclePojo();
         vehiclePojo.setVehicleNumber("ABC123");
         Mockito.when(vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber())).thenReturn(new VehicleEntity());
-        assertThrows(VehicleNumberException.class, () -> {
-            bookingServiceImplementation.addVehicle(vehiclePojo);
-        });
+        assertThrows(VehicleNumberException.class, () ->
+            bookingServiceImplementation.addVehicle(vehiclePojo)
+        );
 
     }
 
@@ -76,16 +74,12 @@ class VehicleServiceImplementationTest {
     }
     VehiclePojo getVehiclePojo(){
         VehiclePojo vehiclePojo =new VehiclePojo();
-        vehiclePojo.setName("audi");
-        vehiclePojo.setModel("x7");
         vehiclePojo.setSeatCapacity(4);
         vehiclePojo.setVehicleNumber("12");
         return vehiclePojo;
     }
     VehicleEntity getVehicleEntity(){
         VehicleEntity vehicleEntity =new VehicleEntity();
-        vehicleEntity.setName("audi");
-        vehicleEntity.setModel("x7");
         vehicleEntity.setSeatCapacity(4);
         vehicleEntity.setVehicleNumber("12");
         return vehicleEntity;

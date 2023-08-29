@@ -4,7 +4,6 @@ import com.example.vehicle.entity.OTP;
 import com.example.vehicle.pojo.ValidateOTP;
 import com.example.vehicle.repository.OTPRepository;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +18,6 @@ import static org.mockito.Mockito.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +45,7 @@ class OTPServiceImplementationTest {
     @Test
     void validateSMSForUnSuccessfulValidationWhenNoMatchingRecordFound() {
         List<OTP> list=getOTPs();
-        list.get(0).setOtPassword("16544");
+        list.get(0).setOtpPassword("16544");
         Mockito.when(otpRepository.findByPhoneNumber(Mockito.anyString(),Mockito.any())).thenReturn(list);
         Assertions.assertEquals("Validation Unsuccessful", otpServiceImplementation.validateSMS(getValidateOTP()));
     }
@@ -90,28 +88,26 @@ class OTPServiceImplementationTest {
      void testGenerateOTP_whenException_throwException() throws IOException {
            HttpURLConnection mockConnection = mock(HttpURLConnection.class);
            when(mockConnection.getResponseCode()).thenReturn(401);
-        String response = otpServiceImplementation.generateOTP(null);
-
+           Assertions.assertEquals("Exception while sending OTP.. ",otpServiceImplementation.generateOTP(null));
     }
 
-
     List<OTP> getOTPs(){
-        List<OTP> otps=new ArrayList<>();
+        List<OTP> list=new ArrayList<>();
 
         OTP otp=new OTP();
-        otp.setOtPassword("12345");
+        otp.setOtpPassword("12345");
         otp.setMobileNumber("1234567890");
         otp.setId(1L);
         otp.setGeneratedTime("2023-02-11");
-        otps.add(otp);
+        list.add(otp);
 
         OTP otp1=new OTP();
-        otp1.setOtPassword("13345");
+        otp1.setOtpPassword("13345");
         otp1.setMobileNumber("123448554644");
         otp1.setId(1L);
         otp1.setGeneratedTime("2023-02-11");
-        otps.add(otp1);
-        return otps;
+        list.add(otp1);
+        return list;
     }
     ValidateOTP getValidateOTP() {
         ValidateOTP validateOTP = new ValidateOTP();

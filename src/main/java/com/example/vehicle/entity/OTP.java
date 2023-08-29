@@ -17,8 +17,8 @@ public class OTP {
 
     @Column(name = "mobile")
     private String mobileNumber;
-
-    private String otPassword;
+    @Column(name = "otp")
+    private String otpPassword;
 
     @Column(name = "generated_time")
     private String generatedTime;

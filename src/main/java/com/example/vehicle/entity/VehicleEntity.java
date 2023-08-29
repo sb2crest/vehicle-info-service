@@ -18,17 +18,14 @@ public class VehicleEntity {
     @Column(name = "id")
     private Long vId;
 
-    @Column(name="name")
-    private String name;
-
-    @Column(name="model")
-    private String model;
-
     @Column(name="seat_capacity")
     private Integer seatCapacity;
 
     @Column(name="vehicle_number")
     private String vehicleNumber;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
 
     @Override

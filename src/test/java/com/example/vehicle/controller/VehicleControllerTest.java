@@ -57,8 +57,6 @@ class VehicleControllerTest {
     @Test
     void addVehicleWithNoNumber() throws Exception { //when number is null
         VehiclePojo vehiclePojo =new VehiclePojo();
-        vehiclePojo.setName("audi");
-        vehiclePojo.setModel("x7");
         vehiclePojo.setSeatCapacity(4);
         Mockito.when(vehicleService.addVehicle(Mockito.any())).thenReturn(getVehicleEntity());
         mvc.perform(post("/addVehicle").content(TestUtil.convertObjectToJsonBytes(vehiclePojo))
@@ -68,8 +66,6 @@ class VehicleControllerTest {
     @Test
     void updateVehicleWithNoNumber() throws Exception { //when number is null
         VehiclePojo vehiclePojo =new VehiclePojo();
-        vehiclePojo.setName("audi");
-        vehiclePojo.setModel("x7");
         vehiclePojo.setSeatCapacity(4);
         Mockito.when(vehicleService.updateVehicle(Mockito.any())).thenReturn(getVehicleEntity());
         mvc.perform(put("/updateVehicle").content(TestUtil.convertObjectToJsonBytes(vehiclePojo))
@@ -122,16 +118,12 @@ class VehicleControllerTest {
 
     VehiclePojo getVehiclePojo(){
         VehiclePojo vehiclePojo =new VehiclePojo();
-        vehiclePojo.setName("audi");
-        vehiclePojo.setModel("x7");
         vehiclePojo.setSeatCapacity(4);
         vehiclePojo.setVehicleNumber("KA12ab1234");
         return vehiclePojo;
     }
     VehicleEntity getVehicleEntity(){
         VehicleEntity vehicleEntity =new VehicleEntity();
-        vehicleEntity.setName("audi");
-        vehicleEntity.setModel("x7");
         vehicleEntity.setSeatCapacity(4);
         vehicleEntity.setVehicleNumber("12");
         return vehicleEntity;
