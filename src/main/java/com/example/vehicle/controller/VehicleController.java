@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RestController
 @Slf4j
@@ -24,10 +26,10 @@ public class VehicleController {
 
 
     @PostMapping("/addVehicle")
-    ResponseEntity<VehicleEntity> addVehicle(@RequestBody @Valid VehiclePojo vehiclePojo) {
+    ResponseEntity<VehicleEntity> addVehicle(@ModelAttribute @Valid VehiclePojo vehiclePojo, @RequestParam("file") MultipartFile image ) throws IOException {
         try {
             checkNumber(vehiclePojo);
-            return new ResponseEntity<>(vehicleService.addVehicle(vehiclePojo), HttpStatus.OK);
+            return new ResponseEntity<>(vehicleService.addVehicle(vehiclePojo, image), HttpStatus.OK);
         } catch (Exception e) {
             log.info("exception");
             throw e;
@@ -44,10 +46,10 @@ public class VehicleController {
     }
 
     @PutMapping("/updateVehicle")
-    ResponseEntity<VehicleEntity> updateVehicle(@RequestBody VehiclePojo vehiclePojo) {
+    ResponseEntity<VehicleEntity> updateVehicle(@RequestBody VehiclePojo vehiclePojo, @RequestParam("image") MultipartFile image ) throws IOException {
         try {
             checkNumber(vehiclePojo);
-            return new ResponseEntity<>(vehicleService.updateVehicle(vehiclePojo), HttpStatus.OK);
+            return new ResponseEntity<>(vehicleService.updateVehicle(vehiclePojo,image), HttpStatus.OK);
         } catch (Exception e) {
             log.info("exception");
             throw e;

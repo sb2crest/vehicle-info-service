@@ -27,6 +27,13 @@ public class VehicleEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "file_url")
+    private String s3ImageUrl;
+
+    public VehicleEntity( String s3ImageUrl) {
+        this.s3ImageUrl = s3ImageUrl;
+    }
+
 
     @Override
     public boolean equals(Object o) {

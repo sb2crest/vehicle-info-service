@@ -14,4 +14,5 @@ public class VehiclePojo {
     private String vehicleNumber;
 
     private MultipartFile image;
+
 }
