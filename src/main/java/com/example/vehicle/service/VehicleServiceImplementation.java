@@ -14,18 +14,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 @Service
 public class VehicleServiceImplementation implements VehicleService {
     @Autowired
     VehicleInfoRepo vehicleInfoRepo;
-
     @Autowired
-    private AmazonS3 amazonS3;
+    AmazonS3 amazonS3;
 
     @Value("${aws.bucketName}")
-    private String s3BucketName;
+    String s3BucketName;
+
 
     @Override
     public VehicleEntity addVehicle(VehiclePojo vehiclePojo, MultipartFile image) throws IOException {
@@ -35,18 +34,13 @@ public class VehicleServiceImplementation implements VehicleService {
                 vehicleEntity=new VehicleEntity();
                 vehicleEntity.setSeatCapacity(vehiclePojo.getSeatCapacity());
                 vehicleEntity.setVehicleNumber(vehiclePojo.getVehicleNumber());
+                vehicleEntity.setIsVehicleAC(vehiclePojo.getIsVehicleAC());
+                vehicleEntity.setIsVehicleSleeper(vehiclePojo.getIsVehicleSleeper());
 
-                String fileName = UUID.randomUUID().toString() + "-" + image.getOriginalFilename();
-                InputStream inputStream = image.getInputStream();
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentLength(image.getSize());
-                amazonS3.putObject(s3BucketName, fileName, inputStream, metadata);
-                String s3ImageUrl = amazonS3.getUrl(s3BucketName, fileName).toString();
+                String s3ImageUrl =uploadImageToS3Bucket(image,vehiclePojo);
                 vehicleEntity.setS3ImageUrl(s3ImageUrl);
                 vehicleInfoRepo.save(vehicleEntity);
-
                 return vehicleEntity;
-
             }else{
                 throw new VehicleNumberException(ResStatus.DUPLICATE_NUMBER);
             }
@@ -67,13 +61,38 @@ public class VehicleServiceImplementation implements VehicleService {
         @Override
         public VehicleEntity updateVehicle (VehiclePojo vehiclePojo, MultipartFile image) throws IOException {
             VehicleEntity vehicleEntity = vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber());
-            if (vehicleEntity != null) {
-                vehicleEntity.setSeatCapacity(vehiclePojo.getSeatCapacity());
-                vehicleInfoRepo.save(vehicleEntity);
-                return vehicleEntity;
+            if (vehicleEntity == null) {
+                return addVehicle(vehiclePojo,image);
             }
-            return addVehicle(vehiclePojo,image);
+            // Delete old images from S3
+            String oldImageUrl = vehicleEntity.getS3ImageUrl();
+            if (oldImageUrl != null && ! image.isEmpty()) {
+                String oldKey = extractS3KeyFromUrl(oldImageUrl);
+                amazonS3.deleteObject(s3BucketName, oldKey);
+            }
+            // Upload new image to S3
+            String s3ImageUrl =uploadImageToS3Bucket(image,vehiclePojo);
+            vehicleEntity.setS3ImageUrl(s3ImageUrl);
+            vehicleEntity.setSeatCapacity(vehiclePojo.getSeatCapacity());
+            vehicleEntity.setVehicleNumber(vehiclePojo.getVehicleNumber());
+            vehicleEntity.setIsVehicleAC(vehiclePojo.getIsVehicleAC());
+            vehicleEntity.setIsVehicleSleeper(vehiclePojo.getIsVehicleSleeper());
+            return vehicleInfoRepo.save(vehicleEntity);
+        }
 
+        String extractS3KeyFromUrl(String s3Url) {
+             String[] parts = s3Url.split("/");
+             return parts[parts.length - 1];
+        }
+
+        String uploadImageToS3Bucket( MultipartFile image, VehiclePojo vehiclePojo) throws IOException {
+            String fileName = vehiclePojo.getVehicleNumber();
+            InputStream inputStream = image.getInputStream();
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("jpeg");
+            metadata.setContentLength(image.getSize());
+            amazonS3.putObject(s3BucketName, fileName, inputStream, metadata);
+            return amazonS3.getUrl(s3BucketName, fileName).toString();
         }
 
         @Override

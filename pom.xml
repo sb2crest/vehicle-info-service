@@ -9,16 +9,15 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>vehicle</artifactId>
+    <artifactId>vehicle_info_service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>vehicle</name>
+    <name>vehicle_info_service</name>
     <description>vehicle booking</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>8</java.version>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/com.twilio.sdk/twilio -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -86,6 +85,11 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
             <version>1.11.1020</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

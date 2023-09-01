@@ -24,16 +24,14 @@ public class VehicleEntity {
     @Column(name="vehicle_number")
     private String vehicleNumber;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
     @Column(name = "file_url")
     private String s3ImageUrl;
 
-    public VehicleEntity( String s3ImageUrl) {
-        this.s3ImageUrl = s3ImageUrl;
-    }
+    @Column(name = "is_ac")
+    private Boolean isVehicleAC;
 
+    @Column(name = "is_sleeper")
+    private Boolean isVehicleSleeper;
 
     @Override
     public boolean equals(Object o) {

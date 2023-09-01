@@ -15,4 +15,8 @@ public class VehiclePojo {
 
     private MultipartFile image;
 
+    private Boolean isVehicleAC;
+
+    private Boolean isVehicleSleeper;
+
 }

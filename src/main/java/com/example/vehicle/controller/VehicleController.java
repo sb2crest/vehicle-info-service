@@ -26,7 +26,7 @@ public class VehicleController {
 
 
     @PostMapping("/addVehicle")
-    ResponseEntity<VehicleEntity> addVehicle(@ModelAttribute @Valid VehiclePojo vehiclePojo, @RequestParam("file") MultipartFile image ) throws IOException {
+    ResponseEntity<VehicleEntity> addVehicle(@ModelAttribute VehiclePojo vehiclePojo, @RequestParam("file") MultipartFile image ) throws IOException {
         try {
             checkNumber(vehiclePojo);
             return new ResponseEntity<>(vehicleService.addVehicle(vehiclePojo, image), HttpStatus.OK);
@@ -46,7 +46,7 @@ public class VehicleController {
     }
 
     @PutMapping("/updateVehicle")
-    ResponseEntity<VehicleEntity> updateVehicle(@RequestBody VehiclePojo vehiclePojo, @RequestParam("image") MultipartFile image ) throws IOException {
+    ResponseEntity<VehicleEntity> updateVehicle(@RequestParam("file") MultipartFile image, @ModelAttribute VehiclePojo vehiclePojo) throws IOException {
         try {
             checkNumber(vehiclePojo);
             return new ResponseEntity<>(vehicleService.updateVehicle(vehiclePojo,image), HttpStatus.OK);
