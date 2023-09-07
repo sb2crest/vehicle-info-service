@@ -16,6 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -64,6 +65,11 @@ public class VehicleController {
     @DeleteMapping("/deleteVehicle")
     String deleteBooking(@RequestParam("vehicleNumber") @Valid String vehicleNumber) {
         return vehicleService.deleteVehicle(vehicleNumber);
+    }
+    @GetMapping("/listVehicles")
+    ResponseEntity<List<VehiclePojo>> listVehicles() {
+        List<VehiclePojo> vehicles = vehicleService.listAllVehicles();
+        return new ResponseEntity<>(vehicles, HttpStatus.OK);
     }
 
 }

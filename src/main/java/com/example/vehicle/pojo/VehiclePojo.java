@@ -7,13 +7,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
-public class VehiclePojo {
+public class  VehiclePojo {
 
     private Integer seatCapacity;
 
     private String vehicleNumber;
 
     private MultipartFile image;
+
+    private String imageUrl;
 
     private Boolean isVehicleAC;
 
