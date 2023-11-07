@@ -27,10 +27,10 @@ public class VehicleController {
 
 
     @PostMapping("/addVehicle")
-    ResponseEntity<VehicleEntity> addVehicle(@ModelAttribute VehiclePojo vehiclePojo, @RequestParam("file") MultipartFile image ) throws IOException {
+    ResponseEntity<VehicleEntity> addVehicle(@ModelAttribute VehiclePojo vehiclePojo, @RequestParam("files") List<MultipartFile> images ) throws IOException {
         try {
             checkNumber(vehiclePojo);
-            return new ResponseEntity<>(vehicleService.addVehicle(vehiclePojo, image), HttpStatus.OK);
+            return new ResponseEntity<>(vehicleService.addVehicle(vehiclePojo, images), HttpStatus.OK);
         } catch (Exception e) {
             log.info("exception");
             throw e;
@@ -47,10 +47,10 @@ public class VehicleController {
     }
 
     @PutMapping("/updateVehicle")
-    ResponseEntity<VehicleEntity> updateVehicle(@RequestParam("file") MultipartFile image, @ModelAttribute VehiclePojo vehiclePojo) throws IOException {
+    ResponseEntity<VehicleEntity> updateVehicle(@RequestParam("files") List<MultipartFile> images, @ModelAttribute VehiclePojo vehiclePojo) throws IOException {
         try {
             checkNumber(vehiclePojo);
-            return new ResponseEntity<>(vehicleService.updateVehicle(vehiclePojo,image), HttpStatus.OK);
+            return new ResponseEntity<>(vehicleService.updateVehicle(vehiclePojo,images), HttpStatus.OK);
         } catch (Exception e) {
             log.info("exception");
             throw e;

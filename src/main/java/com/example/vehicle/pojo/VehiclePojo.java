@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Setter
 @Getter
 public class  VehiclePojo {
@@ -15,7 +17,7 @@ public class  VehiclePojo {
 
     private MultipartFile image;
 
-    private String imageUrl;
+    private List<String> imageUrl;
 
     private Boolean isVehicleAC;
 

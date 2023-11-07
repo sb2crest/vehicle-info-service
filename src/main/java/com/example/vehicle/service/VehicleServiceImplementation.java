@@ -29,7 +29,7 @@ public class VehicleServiceImplementation implements VehicleService {
 
 
     @Override
-    public VehicleEntity addVehicle(VehiclePojo vehiclePojo, MultipartFile image) throws IOException {
+    public VehicleEntity addVehicle(VehiclePojo vehiclePojo, List<MultipartFile> images) throws IOException {
         VehicleEntity vehicleEntity;
         vehicleEntity = vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber());
         if (vehicleEntity == null) {
@@ -38,9 +38,11 @@ public class VehicleServiceImplementation implements VehicleService {
             vehicleEntity.setVehicleNumber(vehiclePojo.getVehicleNumber());
             vehicleEntity.setIsVehicleAC(vehiclePojo.getIsVehicleAC());
             vehicleEntity.setIsVehicleSleeper(vehiclePojo.getIsVehicleSleeper());
-
-            String s3ImageUrl = uploadImageToS3Bucket(image, vehiclePojo);
-            vehicleEntity.setS3ImageUrl(s3ImageUrl);
+            if (images != null) {
+                List<String> s3ImageUrl = uploadImagesToS3Bucket(images, vehiclePojo);
+                vehicleEntity.setS3ImageUrl(s3ImageUrl);
+            }
+            vehicleEntity.setS3ImageUrl(vehicleEntity.getS3ImageUrl());
             vehicleInfoRepo.save(vehicleEntity);
             return vehicleEntity;
         } else {
@@ -61,19 +63,21 @@ public class VehicleServiceImplementation implements VehicleService {
     }
 
     @Override
-    public VehicleEntity updateVehicle(VehiclePojo vehiclePojo, MultipartFile image) throws IOException {
+    public VehicleEntity updateVehicle(VehiclePojo vehiclePojo, List<MultipartFile> images) throws IOException {
         VehicleEntity vehicleEntity = vehicleInfoRepo.getByVehicleNumber(vehiclePojo.getVehicleNumber());
         if (vehicleEntity == null) {
-            return addVehicle(vehiclePojo, image);
+            return addVehicle(vehiclePojo, images);
         }
         // Delete old images from S3
-        String oldImageUrl = vehicleEntity.getS3ImageUrl();
-        if (oldImageUrl != null && !image.isEmpty()) {
-            String oldKey = extractS3KeyFromUrl(oldImageUrl);
-            amazonS3.deleteObject(s3BucketName, oldKey);
+        List<String> oldImageUrl = vehicleEntity.getS3ImageUrl();
+        if (oldImageUrl != null && !images.isEmpty()) {
+            List<String> oldKeys = extractS3KeyFromUrl(oldImageUrl);
+            for (String oldKey : oldKeys) {
+                amazonS3.deleteObject(s3BucketName, oldKey);
+            }
         }
-        // Upload new image to S3
-        String s3ImageUrl = uploadImageToS3Bucket(image, vehiclePojo);
+        // Upload new images to S3
+        List<String> s3ImageUrl = uploadImagesToS3Bucket(images,vehiclePojo);
         vehicleEntity.setS3ImageUrl(s3ImageUrl);
         vehicleEntity.setSeatCapacity(vehiclePojo.getSeatCapacity());
         vehicleEntity.setVehicleNumber(vehiclePojo.getVehicleNumber());
@@ -82,19 +86,51 @@ public class VehicleServiceImplementation implements VehicleService {
         return vehicleInfoRepo.save(vehicleEntity);
     }
 
-    String extractS3KeyFromUrl(String s3Url) {
-        String[] parts = s3Url.split("/");
-        return parts[parts.length - 1];
+    List<String> extractS3KeyFromUrl(List<String> s3ImageUrls) {
+        List<String> updatedS3Keys = new ArrayList<>();
+        for (String s3ImageUrl : s3ImageUrls) {
+            String[] parts = s3ImageUrl.split("/");
+            String oldKeyName = parts[parts.length - 1];
+            updatedS3Keys.add(oldKeyName);
+        }
+        return updatedS3Keys;
     }
 
-    String uploadImageToS3Bucket(MultipartFile image, VehiclePojo vehiclePojo) throws IOException {
-        String fileName = vehiclePojo.getVehicleNumber();
-        InputStream inputStream = image.getInputStream();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType("jpeg");
-        metadata.setContentLength(image.getSize());
-        amazonS3.putObject(s3BucketName, fileName, inputStream, metadata);
-        return amazonS3.getUrl(s3BucketName, fileName).toString();
+    List<String> uploadImagesToS3Bucket(List<MultipartFile> images, VehiclePojo vehiclePojo) {
+        List<String> uploadedImageUrls = new ArrayList<>();
+        for (MultipartFile file : images) {
+            String fileName = generateFileName(file.getOriginalFilename(), vehiclePojo);
+            try {
+                InputStream inputStream = file.getInputStream();
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType("jpeg");
+                metadata.setContentLength(file.getSize());
+                amazonS3.putObject(s3BucketName, fileName, inputStream, metadata);
+                String fileUrl = amazonS3.getUrl(s3BucketName, fileName).toString();
+                uploadedImageUrls.add(fileUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return uploadedImageUrls;
+
+    }
+
+
+    int nameCounter = 1;
+    private String generateFileName(String originalFileName, VehiclePojo vehiclePojo) {
+            String imageName = vehiclePojo.getVehicleNumber() + "_image" + nameCounter;
+            String extension = getFileExtension(originalFileName);
+            nameCounter++;
+            return imageName + extension;
+    }
+    private String getFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex >= 0) {
+            return fileName.substring(lastDotIndex);
+        } else {
+            return "";
+        }
     }
 
     @Override

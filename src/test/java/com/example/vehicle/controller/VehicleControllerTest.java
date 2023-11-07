@@ -24,6 +24,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import java.util.Collections;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,7 +53,7 @@ class VehicleControllerTest {
 
     @Test
     void testAddVehicle_Success() throws Exception {
-        MockMultipartFile imageFile = new MockMultipartFile("file", "image.jpg", "image/jpeg", new byte[0]);
+        MockMultipartFile imageFile = new MockMultipartFile("files", "image.jpg", "image/jpeg", new byte[0]);
         Mockito.when(vehicleService.addVehicle(any(), any())).thenReturn(getVehicleEntity());
         mvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.POST, "/addVehicle")
                         .file(imageFile)
@@ -66,7 +68,7 @@ class VehicleControllerTest {
 
     @Test
     void addVehicleForInvalidNumber() throws Exception {
-        MockMultipartFile imageFile = new MockMultipartFile("file", "image.jpg", "image/jpeg", new byte[0]);
+        MockMultipartFile imageFile = new MockMultipartFile("files", "image.jpg", "image/jpeg", new byte[0]);
         Mockito.when(vehicleService.addVehicle(any(), any())).thenReturn(getVehicleEntity());
         mvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.POST, "/addVehicle")
                         .file(imageFile)
@@ -80,7 +82,7 @@ class VehicleControllerTest {
 
     @Test
     void addVehicleWithNoNumber() throws Exception {
-        MockMultipartFile imageFile = new MockMultipartFile("file", "image.jpg", "image/jpeg", new byte[0]);
+        MockMultipartFile imageFile = new MockMultipartFile("files", "image.jpg", "image/jpeg", new byte[0]);
         Mockito.when(vehicleService.addVehicle(any(), any())).thenReturn(getVehicleEntity());
         mvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.POST, "/addVehicle")
                         .file(imageFile)
@@ -95,7 +97,7 @@ class VehicleControllerTest {
     @Test
     void updateVehicleWithNoNumber() throws Exception {
         MockMultipartFile image = new MockMultipartFile(
-                "file",
+                "files",
                 "test.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 new byte[0]
@@ -104,7 +106,7 @@ class VehicleControllerTest {
         vehiclePojo.setSeatCapacity(4);
         vehiclePojo.setIsVehicleAC(true);
         vehiclePojo.setIsVehicleSleeper(true);
-        when(vehicleService.updateVehicle(any(VehiclePojo.class), any(MultipartFile.class)))
+        when(vehicleService.updateVehicle(any(VehiclePojo.class), Collections.singletonList(any(MultipartFile.class))))
                 .thenThrow(VehicleNumberException.class);
         mvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.PUT, "/updateVehicle")
                         .file(image)
@@ -119,7 +121,7 @@ class VehicleControllerTest {
     @Test
     void updateVehicleForInvalidNumber() throws Exception {
         MockMultipartFile image = new MockMultipartFile(
-                "file",
+                "files",
                 "test.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 new byte[0]
@@ -129,7 +131,7 @@ class VehicleControllerTest {
         vehiclePojo.setSeatCapacity(4);
         vehiclePojo.setIsVehicleAC(true);
         vehiclePojo.setIsVehicleSleeper(true);
-        when(vehicleService.updateVehicle(any(VehiclePojo.class), any(MultipartFile.class)))
+        when(vehicleService.updateVehicle(any(VehiclePojo.class), Collections.singletonList(any(MultipartFile.class))))
                 .thenThrow(VehicleNumberException.class);
         mvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.PUT, "/updateVehicle")
                         .file(image)
@@ -144,7 +146,7 @@ class VehicleControllerTest {
     @Test
     void updateVehicle() throws Exception {
         MockMultipartFile image = new MockMultipartFile(
-                "file",
+                "files",
                 "test.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 new byte[0]
@@ -155,8 +157,7 @@ class VehicleControllerTest {
         vehiclePojo.setIsVehicleAC(true);
         vehiclePojo.setIsVehicleSleeper(true);
         VehicleEntity updatedEntity = new VehicleEntity();
-        when(vehicleService.updateVehicle(any(VehiclePojo.class), any(MultipartFile.class)))
-                .thenReturn(updatedEntity);
+        doReturn(updatedEntity).when(vehicleService).updateVehicle(any(VehiclePojo.class), anyList());
         mvc.perform(MockMvcRequestBuilders.multipart(HttpMethod.PUT, "/updateVehicle")
                         .file(image)
                         .param("vehicleNumber", vehiclePojo.getVehicleNumber())
@@ -166,7 +167,8 @@ class VehicleControllerTest {
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
         verify(vehicleService, Mockito.times(1))
-                .updateVehicle(any(VehiclePojo.class), any(MultipartFile.class));
+                .updateVehicle(any(VehiclePojo.class), anyList());
+
     }
 
     @Test
